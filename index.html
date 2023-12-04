@@ -3,80 +3,16 @@
 </head>
 <body>
 
-<div id="info">
+<header>
 	<h1>AR Aquarium (AR水族館)</h1>
 	DATA: <a href="./fishes.csv">CSVオープンデータ by Code for FUKUI (こどもシビックテック)</a><br>
 	LIB: <a href="https://threejs.org">three.js</a><br>
 	APP: <a href="https://github.com/code4fukui/ar-aquarium/">src on GitHub</a><br>
-</div>
-
-<style>
-body {
-	margin: 0;
-	background-color: #eee;
-	font-family: sans-serif;
-}
-#info {
-	position: absolute;
-	background-color: rgba(155, 155, 155, 0.5);
-	padding: 0.5em;
-	margin: 0.5em;
-	color: #111;
-}
-a {
-	color: #228 !important;
-}
-#ARButton {
-	color: black !important;
-	border: 1px solid black !important;
-}
-</style>
-
-<!-- Import maps polyfill -->
-<!-- Remove this when import maps will be widely supported -->
-<script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
-
-<script type="importmap">
-{
-	"imports": {
-		"three": "https://code4fukui.github.io/three.js/build/three.module.js",
-		"three/addons/": "https://code4fukui.github.io/three.js/examples/jsm/"
-	}
-}
-</script>
+</header>
 
 <script type="module">
-import * as THREE from "three";
-import { OrbitControls } from "three/addons/controls/OrbitControls.js"; // for PC
-import { ARButton } from "three/addons/webxr/ARButton.js";
+import { THREE, scene, camera, renderer } from "https://code4fukui.github.io/egxr.js/egxr.js";
 import { CSV } from "https://js.sabae.cc/CSV.js";
-
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, 0.1, 1000);
-const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-renderer.setPixelRatio(devicePixelRatio);
-renderer.setSize(innerWidth, innerHeight);
-//renderer.outputEncoding = THREE.sRGBEncoding;
-renderer.xr.enabled = true;
-document.body.appendChild(renderer.domElement);
-
-// XRボタン追加
-document.body.appendChild(ARButton.createButton(renderer));
-
-// ブラウザのリサイズに対応
-addEventListener("resize", () => {
-	camera.aspect = innerWidth / innerHeight;
-	camera.updateProjectionMatrix();
-	renderer.setSize(innerWidth, innerHeight);
-}, false);
-
-// ライティング
-const ambientLight = new THREE.AmbientLight(0xcccccc, 0.4);
-scene.add(ambientLight);
-
-const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-directionalLight.position.set(0, 0, 1);
-scene.add(directionalLight);
 
 // fishes
 const fishesdata = await CSV.fetchJSON("./fishes.csv");
@@ -129,19 +65,14 @@ for (let i = 0; i < 30; i++) {
 	fishes.push(fish);
 }
 
-// アニメーション
 const t0 = performance.now();
-const animate = () => {
+renderer.setAnimationLoop(() => {
 	const t = t0 - performance.now();
-
 	for (const fish of fishes) {
 		fish.animate(t);
 	}
-
 	renderer.render(scene, camera);
-};
-renderer.setAnimationLoop(animate);
-
+});
 </script>
 </body>
 </html>
