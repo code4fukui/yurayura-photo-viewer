@@ -1,78 +1,52 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="icon" href="data:">
-<title>AR Aquarium (AR水族館)</title>
+<title>yurayura-photo-viewer</title>
 </head>
 <body>
 
+<main id=main>
+</main>
+
 <header>
-	<h1>AR Aquarium (AR水族館)</h1>
-	DATA: <a href="./fishes.csv">CSVオープンデータ by Code for FUKUI (こどもシビックテック)</a><br>
-	LIB: <a href="https://github.com/code4fukui/egxr.js/">egxr.js</a><br>
-	APP: <a href="https://github.com/code4fukui/ar-aquarium/">src on GitHub</a><br>
+	<h1>yurayura-photo-viewer</h1>
+	Base App: forked <a href="https://github.com/code4fukui/ar-aquarium/">AR水族館</a><br>
+	APP: <a href="https://github.com/code4fukui/yurayura-photo-viewer/">src on GitHub</a><br>
 </header>
 
+<style>
+header {
+	position: absolute;
+	top: 1em;
+	left: 1em;
+}
+main {
+	width: 90vw;
+	height: 80vh;
+}
+yurayura-photo-viewer {
+	display: inline-block;
+	width: 100%;
+	height: 100%;
+}
+</style>
+
 <script type="module">
-import { THREE, scene, camera, renderer } from "https://code4fukui.github.io/egxr.js/egxr.js";
+import { YurayuraPhotoViewer } from "./yurayura-photo-viewer.js";
 import { CSV } from "https://js.sabae.cc/CSV.js";
 
-// fishes
-const fishesdata = await CSV.fetchJSON("./fishes.csv");
-
-const makeFish = (options) => {
-	// テクスチャー読み込み
-	const textureLoader = new THREE.TextureLoader();
-	const texture = textureLoader.load(options.file);
-	const fish1aspect = options.height / options.width;
-	
-	// 平面ジオメトリの生成
-	const sw = 8;
-	const size = options.size;
-	const planeGeometry = new THREE.PlaneGeometry(size, size * fish1aspect, sw, 1);
-	const material = new THREE.MeshBasicMaterial({
-		map: texture,
-		transparent: true,
-		side: THREE.DoubleSide,
-		//color: 0xFF0000, wireframe: true,
-	});
-	const mesh = new THREE.Mesh(planeGeometry, material);
-	mesh.animate = (t) => {
-		// メッシュのジオメトリをリアルタイムで変更
-		const p = mesh.geometry.attributes.position;
-		const a = p.array;
-		for (let i = 0; i <= sw; i++) {
-			const z = Math.cos(t / 100 + i * options.freq) * options.amp;
-			a[2 + i * 3] = z;
-			a[2 + i * 3 + (sw + 1) * 3] = z;
-		}
-		p.needsUpdate = true;
-
-		// 場所設定
-		const th = mesh.th + t * options.speed;
-		mesh.position.x = Math.cos(th) * mesh.r;
-		mesh.position.z = Math.sin(th) * mesh.r;
-		mesh.rotation.y = Math.atan2(mesh.position.x, mesh.position.z) - Math.PI;
+const url = "https://code4fukui.github.io/find47/find47images.csv";
+const data = await CSV.fetchJSON(url);
+const nimages = 10;
+const images = [];
+for (let i = 0; i < nimages; i++) {
+	const d = data[i];
+	const opt = {
+		file: d.url_thumb,
+		width: 960,
+		height: 540,
 	};
-	return mesh;
-};
-
-const fishes = [];
-for (let i = 0; i < 30; i++) {
-	const d = fishesdata[i % fishesdata.length];
-	const fish = makeFish(d);
-	scene.add(fish);
-	fish.position.y = Math.random() * 1.5;// + .5;
-	fish.r = Math.random() * 3 + .5;
-	fish.th = Math.random() * Math.PI * 2;
-	fishes.push(fish);
+	images.push(opt);
 }
-
-const t0 = performance.now();
-renderer.setAnimationLoop(() => {
-	const t = t0 - performance.now();
-	for (const fish of fishes) {
-		fish.animate(t);
-	}
-	renderer.render(scene, camera);
-});
+main.appendChild(new YurayuraPhotoViewer(images));
 </script>
 </body>
 </html>

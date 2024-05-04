@@ -1,3 +1,5 @@
-# ar-aquarium
- 
-https://code4fukui.github.io/ar-aquarium/
+# yurayura-photo-viewer
+
+## sample
+
+- https://code4fukui.github.io/yurayura-photo-viewer/
