@@ -8,21 +8,36 @@
 
 <header>
 	<h1>yurayura-photo-viewer</h1>
-	Base App: forked <a href="https://github.com/code4fukui/ar-aquarium/">AR aquarium</a><br>
-	Sample Photo: <a href=https://github.com/code4fukui/find47/>FIND/47 opendata</a> from <a href="https://find47.jp/">FIND/47</a> (CC BY)<br>
-	Design: <a href="https://find47.jp/">FIND/47</a> (CC BY)<br>
-	APP: <a href="https://github.com/code4fukui/yurayura-photo-viewer/">src on GitHub</a><br>
+
+	<div id=divinfo></div>
 </header>
+<footer>
+Base App: forked <a href="https://github.com/code4fukui/ar-aquarium/">AR aquarium</a><br>
+Sample Photo: <a href=https://github.com/code4fukui/find47/>FIND/47 opendata</a> from <a href="https://find47.jp/">FIND/47</a> (CC BY)<br>
+Design: <a href="https://find47.jp/">FIND/47</a> (CC BY)<br>
+APP: <a href="https://github.com/code4fukui/yurayura-photo-viewer/">src on GitHub</a> by <a href=https://code4fukui.github.io/>Code for FUKUI</a><br>
+</footer>
 
 <style>
+body {
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	font-family: serif;
+}
 header {
 	position: absolute;
 	top: 1em;
 	left: 1em;
 }
+footer {
+	position: absolute;
+	bottom: 1em;
+	left: 1em;
+}
 main {
-	width: 90vw;
-	height: 80vh;
+	width: 100vw;
+	height: 100vh;
 }
 yurayura-photo-viewer {
 	display: inline-block;
@@ -32,26 +47,86 @@ yurayura-photo-viewer {
 a {
 	color: gray !important;
 }
+#divinfo {
+	padding-top: 1em;
+	height: 6em;
+	font-size: 200%;
+}
+#divinfo a {
+	text-decoration: none;
+	color: #222 !important;;
+}
+.fadein {
+  animation-name: fadein;
+  animation-duration: 1s;
+}
+@keyframes fadein {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+.fadeout {
+	animation-name: fadeout;
+  animation-duration: 1s;
+}
+@keyframes fadeout {
+	from {
+		opacity: 1;
+	}
+	to {
+		opacity: 0;
+	}
+}
 </style>
 
 <script type="module">
 import { YurayuraPhotoViewer } from "./yurayura-photo-viewer.js";
 import { CSV } from "https://js.sabae.cc/CSV.js";
+import { shuffle } from "https://js.sabae.cc/shuffle.js";
 
-const url = "https://code4fukui.github.io/find47/find47images.csv";
+const allurl = "https://code4fukui.github.io/find47/find47images.csv";
+const prefurl = (n) => "https://code4fukui.github.io/find47/pref/find47images_JP-" + (n < 10 ? "0" + n : n) + ".csv";
+
+const getURL = () => {
+	const no = parseInt(location.hash.substring(1));
+	if (isNaN(no)) return allurl;
+	return prefurl(no);
+};
+
+const url = getURL();
 const data = await CSV.fetchJSON(url);
-const nimages = 10;
+shuffle(data);
+const nimages = data.length > 300 ? 300 : data.length;
 const images = [];
 for (let i = 0; i < nimages; i++) {
 	const d = data[i];
+	const img = "https://code4fukui.github.io/find47/photo/" + d.id + ".jpg";
 	const opt = {
-		file: d.url_thumb,
+		file: img,
 		width: 960,
 		height: 540,
+		data: d,
 	};
 	images.push(opt);
 }
-main.appendChild(new YurayuraPhotoViewer(images));
+const yura = new YurayuraPhotoViewer();
+main.appendChild(yura);
+yura.setAttribute("duration", 6 * 1000);
+yura.onchange = (data) => {
+	//console.log(data);
+	const d = data.data;
+	divinfo.innerHTML = "<a href=" + d.url + ">" + d.title + "<br>by " + d.author + " (" + d.pref + ")</a>";
+	divinfo.className = "fadein";
+	console.log("fadein")
+	setTimeout(() => {
+		divinfo.className = "fadeout";
+		console.log("fadeout")
+	}, 5000);
+};
+yura.value = images;
 </script>
 </body>
 </html>
