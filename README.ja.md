@@ -56,7 +56,7 @@ Three.jsを使用して、優しくゆらぐ「ユラユラ」効果で写真を
       const imageList = await CSV.fetchJSON("https://code4fukui.github.io/find47/find47images.csv");
       
       const images = imageList.slice(0, 100).map(d => ({
-        file: `https://code4fukui.github.io/find47/photo/${d.id}.jpg`,
+        file: `~~https://code4fukui.github.io/find47/photo/${d.id}.jpg`~~ *(unavailable)*,
         width: 960,  // アスペクト比計算用の元画像の幅
         height: 540, // 元画像の高さ
         data: d      // onchangeコールバック用に元のメタデータを渡す

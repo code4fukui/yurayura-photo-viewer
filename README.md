@@ -58,7 +58,7 @@ A Web Component to display photos with a gentle, undulating "yurayura" (swaying)
       const imageList = await CSV.fetchJSON("https://code4fukui.github.io/find47/find47images.csv");
       
       const images = imageList.slice(0, 100).map(d => ({
-        file: `https://code4fukui.github.io/find47/photo/${d.id}.jpg`,
+        file: `~~https://code4fukui.github.io/find47/photo/${d.id}.jpg`~~ *(unavailable)*,
         width: 960,  // Original image width for aspect ratio
         height: 540, // Original image height
         data: d      // Pass through original metadata for the onchange callback
